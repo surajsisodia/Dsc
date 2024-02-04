@@ -11,10 +11,10 @@ import 'package:flutter_svg/flutter_svg.dart';
 import '../newAuthScreens/login.dart';
 
 class DrawerCode extends StatefulWidget {
-  final String userName;
-  final String designation;
-  final bool hide;
-  final String mobileNumber;
+  final String? userName;
+  final String? designation;
+  final bool? hide;
+  final String? mobileNumber;
   DrawerCode({
     this.hide,
     this.userName,
@@ -25,21 +25,20 @@ class DrawerCode extends StatefulWidget {
 }
 
 class _DrawerCodeState extends State<DrawerCode> {
-  SharedPreferences preferences;
   String userName = "Not Provided";
   String userPhone = "Not Provided";
   String designation = "Not Provided";
   String userType = "";
 
   loadData() async {
-    preferences = await SharedPreferences.getInstance();
+    SharedPreferences preferences = await SharedPreferences.getInstance();
 
     setState(() {
-      userName = preferences.getString("currentUserName");
-      userPhone = preferences.getString("currentUserPhone");
+      userName = preferences.getString("currentUserName") ?? "";
+      userPhone = preferences.getString("currentUserPhone") ?? "";
       if (preferences.containsKey('currentUserDesignation'))
-        designation = preferences.getString('currentUserDesignation');
-      userType = preferences.getString('currentUserType');
+        designation = preferences.getString('currentUserDesignation') ?? "";
+      userType = preferences.getString('currentUserType') ?? "";
     });
   }
 
@@ -132,7 +131,7 @@ class _DrawerCodeState extends State<DrawerCode> {
     );
   }
 
-  Material row(String ic, String tit, Function fn) {
+  Material row(String ic, String tit, Function? fn) {
     SizeConfig().init(context);
     var b = SizeConfig.screenWidth / 414;
     var h = SizeConfig.screenHeight / 896;
@@ -140,7 +139,9 @@ class _DrawerCodeState extends State<DrawerCode> {
       child: InkWell(
         highlightColor: mc,
         splashColor: mc,
-        onTap: () => fn(),
+        onTap: () {
+          if (fn != null) fn();
+        },
         child: Container(
           color: Colors.transparent,
           height: SizeConfig.screenHeight * 50 / 896,
@@ -203,7 +204,7 @@ class _DrawerCodeState extends State<DrawerCode> {
     } on FirebaseAuthException catch (e) {
       print(e.message);
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: Text(e.message),
+        content: Text(e.message ?? 'Error Encountered'),
         backgroundColor: Colors.red,
         behavior: SnackBarBehavior.floating,
       ));

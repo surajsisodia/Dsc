@@ -23,9 +23,9 @@ class _HomeNgoState extends State<HomeNgo> {
   double _getIndicatorPosition(int index) {
     var isLtr = Directionality.of(context) == TextDirection.ltr;
     if (isLtr)
-      return lerpDouble(-1.0, 1.0, index / (items.length - 1));
+      return lerpDouble(-1.0, 1.0, index / (items.length - 1)) ?? 0;
     else
-      return lerpDouble(1.0, -1.0, index / (items.length - 1));
+      return lerpDouble(1.0, -1.0, index / (items.length - 1)) ?? 0;
   }
 
   List<Widget> _widgetOptionsNGO = <Widget>[

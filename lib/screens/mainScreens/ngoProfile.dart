@@ -21,7 +21,7 @@ class NgoProfile extends StatefulWidget {
 
 class _NgoProfileState extends State<NgoProfile> {
   GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
-  SharedPreferences preferences;
+  late SharedPreferences preferences;
 
   TextEditingController addressController = TextEditingController();
   TextEditingController oldPwdController = TextEditingController();
@@ -63,48 +63,49 @@ class _NgoProfileState extends State<NgoProfile> {
   bool isImageButtonPressed = false;
   int count = 0;
 
-  File image1File, image2File, image3File, image4File;
+  late File image1File, image2File, image3File, image4File;
 
   loadData() async {
     preferences = await SharedPreferences.getInstance();
     if (mounted)
       setState(() {
-        ngoName = preferences.getString("currentUserName");
+        ngoName = preferences.getString("currentUserName") ?? "";
         count++;
-        email = preferences.getString("currentUserEmail");
+        email = preferences.getString("currentUserEmail") ?? "";
         count++;
 
         if (preferences.containsKey("currentUserPhone")) {
-          userPhone = preferences.getString("currentUserPhone");
+          userPhone = preferences.getString("currentUserPhone") ?? "";
           count++;
         }
 
         if (preferences.containsKey('currentUserAddress')) {
-          address = preferences.getString('currentUserAddress');
+          address = preferences.getString('currentUserAddress') ?? "";
           count++;
         }
 
         if (preferences.containsKey('currentUserDesignation')) {
-          designation = preferences.getString('currentUserDesignation');
+          designation = preferences.getString('currentUserDesignation') ?? "";
           count++;
         }
 
         if (preferences.containsKey('currentInChargeName')) {
           count++;
-          inChargeName = preferences.getString('currentInChargeName');
+          inChargeName = preferences.getString('currentInChargeName') ?? "";
         }
 
         if (preferences.containsKey('isProfileImageUploaded')) {
-          isImageUpload = preferences.getBool('isProfileImageUploaded');
+          isImageUpload =
+              preferences.getBool('isProfileImageUploaded') ?? false;
           count++;
         }
         if (preferences.containsKey('currentUserSummary')) {
           count++;
-          summary = preferences.getString('currentUserSummary');
+          summary = preferences.getString('currentUserSummary') ?? "";
         }
 
         if (preferences.containsKey('isLocationGot')) {
-          isLocationUpload = preferences.getBool('isLocationGot');
+          isLocationUpload = preferences.getBool('isLocationGot') ?? false;
           count++;
         }
       });
@@ -265,9 +266,9 @@ class _NgoProfileState extends State<NgoProfile> {
                                         pwdChangeRequest(oldPwdController.text,
                                             newPwdController.text);
                                       } else {
-                                        Toast.show("Password Mismatch", context,
-                                            duration: Toast.LENGTH_LONG,
-                                            gravity: Toast.BOTTOM);
+                                        Toast.show("Password Mismatch",
+                                            duration: Toast.lengthLong,
+                                            gravity: Toast.bottom);
                                       }
                                     },
                                     child: Container(
@@ -804,7 +805,7 @@ class _NgoProfileState extends State<NgoProfile> {
     );
   }
 
-  Padding butt({String field}) {
+  Padding butt({required String field}) {
     return Padding(
       padding: EdgeInsets.only(
           left: SizeConfig.screenWidth / 414 * 180,
@@ -964,19 +965,18 @@ class _NgoProfileState extends State<NgoProfile> {
   void pwdChangeRequest(String pwd, String newPwd) {
     FirebaseAuth auth = FirebaseAuth.instance;
 
-    EmailAuthCredential credential =
+    AuthCredential credential =
         EmailAuthProvider.credential(email: email, password: pwd);
 
-    auth.currentUser.reauthenticateWithCredential(credential).catchError((e) {
+    auth.currentUser!.reauthenticateWithCredential(credential).catchError((e) {
       print("Error is: $e");
     }).then((value) {
-      auth.currentUser.updatePassword(newPwd).catchError((e) {
+      auth.currentUser!.updatePassword(newPwd).catchError((e) {
         print(e);
       }).timeout(Duration(seconds: 10), onTimeout: () {
-        Toast.show("Server Error", context, duration: Toast.LENGTH_LONG);
+        Toast.show("Server Error", duration: Toast.lengthLong);
       }).then((value) {
-        Toast.show("Password Changed Succesfully", context,
-            duration: Toast.LENGTH_LONG);
+        Toast.show("Password Changed Succesfully", duration: Toast.lengthLong);
         setState(() {
           isPass = !isPass;
         });
@@ -1001,7 +1001,7 @@ class _NgoProfileState extends State<NgoProfile> {
     });
 
     SharedPreferences pref = await SharedPreferences.getInstance();
-    String uid = pref.getString('currentUserUID');
+    String uid = pref.getString('currentUserUID') ?? "";
     FirebaseFirestore.instance
         .collection('users')
         .doc(uid)
@@ -1031,8 +1031,9 @@ class _NgoProfileState extends State<NgoProfile> {
   }
 
   pickImage(int imageCode) async {
-    var picker = await ImagePicker().getImage(source: ImageSource.gallery);
+    var picker = await ImagePicker().pickImage(source: ImageSource.gallery);
 
+    if (picker == null) return;
     File selectedImage = File(picker.path);
     setState(() {
       if (imageCode == 1) {
@@ -1053,7 +1054,7 @@ class _NgoProfileState extends State<NgoProfile> {
 
   uploadImageAndToDB() async {
     SharedPreferences preferences = await SharedPreferences.getInstance();
-    String uid = preferences.getString('currentUserUID');
+    String uid = preferences.getString('currentUserUID') ?? "";
 
     if (image1File == null &&
         image2File == null &&
@@ -1159,11 +1160,11 @@ class _NgoProfileState extends State<NgoProfile> {
       if (permissionStatus == loc.PermissionStatus.denied ||
           permissionStatus == loc.PermissionStatus.deniedForever) {
         permissionsOK = false;
-        Toast.show("Permission Required", context);
+        Toast.show("Permission Required");
       } else
         permissionsOK = true;
     } else if (permissionStatus == loc.PermissionStatus.deniedForever)
-      Toast.show("Permission Required", context);
+      Toast.show("Permission Required");
     else
       permissionsOK = true;
 
@@ -1194,14 +1195,14 @@ class _NgoProfileState extends State<NgoProfile> {
         });
       });
     } else
-      Toast.show("Insufficient Permission", context);
+      Toast.show("Insufficient Permission");
   }
 
   checkCount() {
     if (count == 9) {
       FirebaseFirestore.instance
           .collection('users')
-          .doc(FirebaseAuth.instance.currentUser.uid)
+          .doc(FirebaseAuth.instance.currentUser?.uid ?? "")
           .update({'isVerified': true}).then((value) {
         preferences.setBool('isVerified', true);
       });

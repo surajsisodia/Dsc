@@ -33,8 +33,8 @@ class _CouponsState extends State<Coupons> {
         .listen((event) {
       setState(() {
         couponList.clear();
-        userPoints = event.data()['points'];
-        for (var i in event.data()['coupons']) {
+        userPoints = event.data()?['points'];
+        for (var i in event.data()?['coupons']) {
           couponList.add(i);
         }
         print('coupon' + (couponList[0] % 3).toString() + '.png');
@@ -144,7 +144,7 @@ class _CouponsState extends State<Coupons> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Text(
-                        userPoints == null ? "0" : userPoints.toString(),
+                        userPoints.toString(),
                         style: txtS(Colors.white, 30, FontWeight.w900),
                       ),
                       Text(

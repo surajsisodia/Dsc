@@ -1,14 +1,12 @@
-import 'package:cached_network_image/cached_network_image.dart';
+import 'dart:ui' as ui;
+
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:gur/drawerPages/drawer.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:gur/screens/mainScreens/home.dart';
 import 'package:gur/searchScreens/searchNgo.dart';
+
 import '../Utils/SizeConfig.dart';
-import '../Utils/constants.dart';
-import 'dart:ui' as ui;
-import 'package:flutter_svg/flutter_svg.dart';
 
 class Search extends StatefulWidget {
   _SearchState createState() => _SearchState();
@@ -32,8 +30,7 @@ class _SearchState extends State<Search> {
       mainImageList.clear();
       setState(() {
         for (var i in documentSnapshot) {
-          mainImageList
-              .add({'imageURL': i.data()['image1'], 'uid': i.data()['uid']});
+          mainImageList.add({'imageURL': i.get('image1'), 'uid': i.get('uid')});
         }
       });
     });

@@ -1,13 +1,13 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class Message {
-  String senderUid;
-  String receiverUid;
-  String type;
-  String message;
-  FieldValue timestamp;
-  String pickUpPersonName;
-  String pickUpPersonContact;
+  String? senderUid;
+  String? receiverUid;
+  String? type;
+  String? message;
+  FieldValue? timestamp;
+  String? pickUpPersonName;
+  String? pickUpPersonContact;
 
   Message(
       {this.senderUid,

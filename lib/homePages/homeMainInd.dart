@@ -20,7 +20,7 @@ class _HomeIndState extends State<HomeInd> {
   List items = [1, 2, 3, 4];
   Duration duration = Duration(milliseconds: 170);
 
-  double _getIndicatorPosition(int index) {
+  double? _getIndicatorPosition(int index) {
     var isLtr = Directionality.of(context) == TextDirection.ltr;
     if (isLtr)
       return lerpDouble(-1.0, 1.0, index / (items.length - 1));
@@ -48,11 +48,12 @@ class _HomeIndState extends State<HomeInd> {
             height: h * 71,
             child: Column(mainAxisAlignment: MainAxisAlignment.end, children: [
               AnimatedAlign(
-                alignment: Alignment(_getIndicatorPosition(_selectedIndex), 0),
+                alignment:
+                    Alignment(_getIndicatorPosition(_selectedIndex) ?? 0.0, 0),
                 curve: Curves.linear,
                 duration: duration,
                 child: Container(
-                  color: mc ?? Colors.transparent,
+                  color: mc,
                   width: b * 412 / items.length,
                   height: h * 2,
                 ),

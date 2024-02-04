@@ -14,7 +14,7 @@ void main() async {
   bool isLoggedIn = false;
   await Firebase.initializeApp();
   FirebaseAuth auth = FirebaseAuth.instance;
-  User user = auth.currentUser;
+  User? user = auth.currentUser;
   SystemUiOverlayStyle(
     statusBarColor: Colors.transparent,
     statusBarIconBrightness: Brightness.light,
@@ -28,12 +28,14 @@ void main() async {
     isLoggedIn = false;
   else
     isLoggedIn = true;
-  String homeType;
+  String homeType = "";
   if (pref.containsKey('currentUserType'))
-    homeType = pref.getString('currentUserType');
+    homeType = pref.getString('currentUserType') ?? "";
 
   runApp(MyApp(isLoggedIn, homeType));
 }
+
+GlobalKey<NavigatorState> navigatorKey = GlobalKey();
 
 class MyApp extends StatelessWidget {
   final bool isLoggedIn;
@@ -49,6 +51,7 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: 'GlowCal',
       theme: ThemeData(primarySwatch: Colors.orange),
+      navigatorKey: navigatorKey,
       home: !isLoggedIn
           ? Login()
           : homeType == 'ind'

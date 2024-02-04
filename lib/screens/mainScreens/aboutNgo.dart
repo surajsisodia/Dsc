@@ -1,21 +1,22 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
+import 'package:url_launcher/url_launcher_string.dart';
+
 import '../../Utils/SizeConfig.dart';
 import '../../Utils/constants.dart';
-import 'package:flutter_svg/flutter_svg.dart';
-import 'package:url_launcher/url_launcher.dart';
-import 'package:cached_network_image/cached_network_image.dart';
 
 class AboutNgo extends StatefulWidget {
-  final String uidNGO;
+  final String? uidNGO;
 
   AboutNgo({this.uidNGO});
   _AboutNgoState createState() => _AboutNgoState();
 }
 
 void launchUrl(String url) async {
-  if (await canLaunch(url)) {
-    launch(url);
+  if (await canLaunchUrlString(url)) {
+    launchUrlString(url);
   } else {
     throw "Could not launch $url";
   }
@@ -47,22 +48,22 @@ class _AboutNgoState extends State<AboutNgo> {
         .snapshots()
         .listen((snap) {
       setState(() {
-        ngoName = snap.data()['name'];
-        email = snap.data()['email'];
-        phone = snap.data()['phone'];
-        if (snap.data()['address'] != null) address = snap.data()['address'];
+        ngoName = snap.data()?['name'];
+        email = snap.data()?['email'];
+        phone = snap.data()?['phone'];
+        if (snap.data()?['address'] != null) address = snap.data()?['address'];
 
-        if (snap.data()['image1'] != null) photo = snap.data()['image1'];
+        if (snap.data()?['image1'] != null) photo = snap.data()?['image1'];
 
-        if (snap.data()['image2'] != null) photo2 = snap.data()['image2'];
+        if (snap.data()?['image2'] != null) photo2 = snap.data()?['image2'];
 
-        if (snap.data()['summary'] != null) summary = snap.data()['summary'];
+        if (snap.data()?['summary'] != null) summary = snap.data()?['summary'];
 
-        if (snap.data()['packagesDelivered'] != null)
-          packageNo = snap.data()['packagesDelivered'];
+        if (snap.data()?['packagesDelivered'] != null)
+          packageNo = snap.data()?['packagesDelivered'];
 
-        if (snap.data()['isVerified'] != null)
-          isVerified = snap.data()['isVerified'];
+        if (snap.data()?['isVerified'] != null)
+          isVerified = snap.data()?['isVerified'];
       });
     });
   }

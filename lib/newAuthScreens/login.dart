@@ -2,25 +2,25 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:gur/homePages/homeMainInd.dart';
 import 'package:gur/homePages/homeMainNGO.dart';
 import 'package:gur/homePages/homeMainOrg.dart';
+import 'package:gur/models/currentUser.dart';
 import 'package:gur/newAuthScreens/choice.dart';
 import 'package:gur/newAuthScreens/forgotPass.dart';
-import 'package:gur/models/currentUser.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
 import '../Utils/SizeConfig.dart';
 import '../Utils/constants.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 
 class Login extends StatefulWidget {
   _LoginState createState() => _LoginState();
 }
 
 class _LoginState extends State<Login> {
-  SharedPreferences preferences;
+  late SharedPreferences preferences;
   String uid = "";
   String userToken = "";
   bool isVisible = false;
@@ -265,12 +265,12 @@ class _LoginState extends State<Login> {
           behavior: SnackBarBehavior.floating,
         ));
         preferences.setBool('isLoggedIn', true);
-        getUserDataFromDb(credential.user.uid);
-        preferences.setString('currentUserUID', credential.user.uid);
+        getUserDataFromDb(credential.user?.uid ?? "");
+        preferences.setString('currentUserUID', credential.user?.uid ?? "");
       });
     } on FirebaseAuthException catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: Text(e.message),
+        content: Text(e.message ?? "Error Encountered"),
         backgroundColor: Colors.red,
         behavior: SnackBarBehavior.floating,
       ));
@@ -290,63 +290,64 @@ class _LoginState extends State<Login> {
     FirebaseFirestore firestore = FirebaseFirestore.instance;
 
     firestore.collection('users').doc(userUid).snapshots().listen((snapshot) {
-      preferences.setString('currentUserName', snapshot.data()['name']);
-      preferences.setString('currentUserEmail', snapshot.data()['email']);
-      preferences.setString('currentUserType', snapshot.data()['userType']);
-      preferences.setString('currentUserPhone', snapshot.data()['phone']);
+      preferences.setString('currentUserName', snapshot.data()?['name']);
+      preferences.setString('currentUserEmail', snapshot.data()?['email']);
+      preferences.setString('currentUserType', snapshot.data()?['userType']);
+      preferences.setString('currentUserPhone', snapshot.data()?['phone']);
 
-      if (snapshot.data()['regDate'] != null)
+      if (snapshot.data()?['regDate'] != null)
         preferences.setString('currentUserRegDate',
-            snapshot.data()['regDate'].toDate().toString());
+            snapshot.data()!['regDate'].toDate().toString());
 
-      if (snapshot.data()['address'] != null)
-        preferences.setString('currentUserAddress', snapshot.data()['address']);
+      if (snapshot.data()?['address'] != null)
+        preferences.setString(
+            'currentUserAddress', snapshot.data()?['address']);
 
-      if (snapshot.data()['points'] != null)
-        preferences.setInt('currentUserPoints', snapshot.data()['points']);
+      if (snapshot.data()?['points'] != null)
+        preferences.setInt('currentUserPoints', snapshot.data()?['points']);
 
-      if (snapshot.data()['userType'] == 'ngo') {
-        if (snapshot.data()['image1'] != null)
+      if (snapshot.data()?['userType'] == 'ngo') {
+        if (snapshot.data()?['image1'] != null)
           preferences.setBool('isProfileImageUploaded', true);
 
-        if (snapshot.data()['designation'] != null)
+        if (snapshot.data()?['designation'] != null)
           preferences.setString(
-              'currentUserDesignation', snapshot.data()['designation']);
+              'currentUserDesignation', snapshot.data()?['designation']);
 
-        if (snapshot.data()['inChargeName'] != null)
+        if (snapshot.data()?['inChargeName'] != null)
           preferences.setString(
-              'currentInChargeName', snapshot.data()['inChargeName']);
+              'currentInChargeName', snapshot.data()?['inChargeName']);
 
-        if (snapshot.data()['summary'] != null)
+        if (snapshot.data()?['summary'] != null)
           preferences.setString(
-              'currentUserSummary', snapshot.data()['summary']);
+              'currentUserSummary', snapshot.data()?['summary']);
 
-        if (snapshot.data()['lat'] != null)
+        if (snapshot.data()?['lat'] != null)
           preferences.setBool('isLocationGot', true);
         else
           preferences.setBool('isLocationGot', false);
 
-        if (snapshot.data()['image1'] != null)
-          preferences.setString('profileImageURL', snapshot.data()['image1']);
-        if (snapshot.data()['image2'] != null)
-          preferences.setString('baseImageUrl', snapshot.data()['image2']);
+        if (snapshot.data()?['image1'] != null)
+          preferences.setString('profileImageURL', snapshot.data()?['image1']);
+        if (snapshot.data()?['image2'] != null)
+          preferences.setString('baseImageUrl', snapshot.data()?['image2']);
 
-        if (snapshot.data()['isVerified'] != null)
-          preferences.setBool('isVerified', snapshot.data()['isVerified']);
-      } else if (snapshot.data()['userType'] == 'org') {
-        if (snapshot.data()['designation'] != null)
+        if (snapshot.data()?['isVerified'] != null)
+          preferences.setBool('isVerified', snapshot.data()?['isVerified']);
+      } else if (snapshot.data()?['userType'] == 'org') {
+        if (snapshot.data()?['designation'] != null)
           preferences.setString(
-              'currentUserDesignation', snapshot.data()['designation']);
+              'currentUserDesignation', snapshot.data()?['designation']);
 
-        if (snapshot.data()['inChargeName'] != null)
+        if (snapshot.data()?['inChargeName'] != null)
           preferences.setString(
-              'currentInChargeName', snapshot.data()['inChargeName']);
-        if (snapshot.data()['packagesDelivered'] != null)
+              'currentInChargeName', snapshot.data()?['inChargeName']);
+        if (snapshot.data()?['packagesDelivered'] != null)
           preferences.setInt(
-              'packagesDelivered', snapshot.data()['packagesDelivered']);
+              'packagesDelivered', snapshot.data()?['packagesDelivered']);
       }
 
-      String userType = snapshot.data()['userType'];
+      String userType = snapshot.data()?['userType'];
       setState(() {
         isLoggedInPresses = false;
       });
@@ -370,7 +371,7 @@ class _LoginState extends State<Login> {
     CurrentUser currentUser = CurrentUser(
         name: googleUser.displayName, email: googleUser.email, uid: userId);
     var map = currentUser.toMap();
-    FirebaseFirestore.instance.collection('users').doc(userId).set(map);
+    FirebaseFirestore.instance.collection('users').doc(userId).set(map.cast());
 
     preferences.setString('currentUserName', googleUser.displayName);
     preferences.setString('currentUserEmail', googleUser.email);

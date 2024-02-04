@@ -1,19 +1,20 @@
+import 'dart:async';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:gur/homePages/homeMainInd.dart';
 import 'package:gur/homePages/homeMainNGO.dart';
 import 'package:gur/homePages/homeMainOrg.dart';
 import 'package:gur/models/currentUser.dart';
 import 'package:gur/newAuthScreens/login.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import '../Utils/SizeConfig.dart';
-import '../Utils/constants.dart';
 import 'package:otp_text_field/otp_text_field.dart';
 import 'package:otp_text_field/style.dart';
-import 'dart:async';
+import 'package:shared_preferences/shared_preferences.dart';
+
+import '../Utils/SizeConfig.dart';
+import '../Utils/constants.dart';
 
 class Otp extends StatefulWidget {
   final String phoneNo;
@@ -185,7 +186,7 @@ class _OtpState extends State<Otp> {
         verificationFailed: (FirebaseAuthException exception) {
           print(exception.message);
           ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-            content: Text(exception.message),
+            content: Text(exception.message ?? "Error Encountered"),
             backgroundColor: Colors.red,
             behavior: SnackBarBehavior.floating,
           ));
@@ -194,7 +195,7 @@ class _OtpState extends State<Otp> {
             return Login();
           }), (route) => false);
         },
-        codeSent: (String verificationId, int forceResendingToken) async {
+        codeSent: (String verificationId, int? forceResendingToken) {
           setState(() {
             verificationCode = verificationId;
           });
@@ -207,7 +208,7 @@ class _OtpState extends State<Otp> {
   }
 
   signUpWithEmailAndPhone(String pin) async {
-    String email = widget.currentUser.email;
+    String email = widget.currentUser.email ?? "";
     String pwd = widget.pwd;
     FirebaseAuth auth = FirebaseAuth.instance;
 
@@ -216,12 +217,12 @@ class _OtpState extends State<Otp> {
           .createUserWithEmailAndPassword(email: email, password: pwd)
           .then((credential) {
         try {
-          auth.currentUser
+          auth.currentUser!
               .linkWithCredential(PhoneAuthProvider.credential(
                   verificationId: verificationCode, smsCode: pin))
               .then((result) {
             if (result.user != null) {
-              uid = credential.user.uid;
+              uid = credential.user?.uid ?? "";
               addUsertoDB();
               Navigator.pushAndRemoveUntil(context,
                   MaterialPageRoute(builder: (context) {
@@ -239,7 +240,7 @@ class _OtpState extends State<Otp> {
               backgroundColor: Colors.red,
               behavior: SnackBarBehavior.floating,
             ));
-            auth.currentUser.delete();
+            auth.currentUser?.delete();
             Navigator.of(context).pushAndRemoveUntil(
                 MaterialPageRoute(builder: (context) {
               return Login();
@@ -254,7 +255,7 @@ class _OtpState extends State<Otp> {
       });
     } on FirebaseAuthException catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: Text(e.message),
+        content: Text(e.message ?? "Error Encountered"),
         backgroundColor: Colors.red,
         behavior: SnackBarBehavior.floating,
       ));
@@ -271,7 +272,7 @@ class _OtpState extends State<Otp> {
       backgroundColor: Colors.red,
       behavior: SnackBarBehavior.floating,
     ));
-    auth.currentUser.delete();
+    auth.currentUser?.delete();
     Navigator.of(context).pushAndRemoveUntil(
         MaterialPageRoute(builder: (context) {
       return Login();
@@ -282,9 +283,9 @@ class _OtpState extends State<Otp> {
     FirebaseFirestore firestore = FirebaseFirestore.instance;
     SharedPreferences preferences = await SharedPreferences.getInstance();
 
-    String userName = widget.currentUser.name;
-    String email = widget.currentUser.email;
-    String phone = widget.currentUser.phone;
+    String userName = widget.currentUser.name ?? "";
+    String email = widget.currentUser.email ?? "";
+    String phone = widget.currentUser.phone ?? "";
 
     Timestamp timestamp = Timestamp.now();
 
@@ -296,7 +297,7 @@ class _OtpState extends State<Otp> {
         userType: widget.currentUser.userType,
         regDate: FieldValue.serverTimestamp());
 
-    Map<String, dynamic> map = currentUser.toMap();
+    Map<String, dynamic> map = currentUser.toMap().cast();
 
     try {
       firestore.collection('users').doc(uid).set(map).whenComplete(() {
@@ -311,7 +312,7 @@ class _OtpState extends State<Otp> {
     preferences.setString('currentUserEmail', email);
     preferences.setString('currentUserPhone', phone);
     preferences.setString('currentUserPhone', widget.phoneNo);
-    preferences.setString('currentUserType', widget.currentUser.userType);
+    preferences.setString('currentUserType', widget.currentUser.userType ?? "");
     preferences.setString('currentUserRegDate', timestamp.toDate().toString());
   }
 }
@@ -331,7 +332,7 @@ class _OtpTimerState extends State<OtpTimer> {
   String get timerText =>
       '${((timerMaxSeconds - currentSeconds) ~/ 60).toString().padLeft(2, '0')}: ${((timerMaxSeconds - currentSeconds) % 60).toString().padLeft(2, '0')}';
 
-  startTimeout([int milliseconds]) {
+  startTimeout([int? milliseconds]) {
     var duration = interval;
     Timer.periodic(duration, (timer) {
       setState(() {

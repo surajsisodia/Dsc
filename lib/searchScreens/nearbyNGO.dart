@@ -43,27 +43,30 @@ class _NearbyNGOState extends State<NearbyNGO> {
       nearbyNGOList.clear();
 
       for (var i in completeList) {
-        double lat = i.data()['lat'];
-        double lon = i.data()['lon'];
+        double lat = i.get('lat') ?? 0;
+        double lon = i.get('lon') ?? 0;
         bool isVerified = false;
         int packagesNo = 0;
 
-        if (i.data()['isVerified'] != null && i.data()['isVerified'] == true) {
-          isVerified = i.data()['isVerified'];
+        if (i.get('isVerified') != null && i.get('isVerified') == true) {
+          isVerified = i.get('isVerified');
 
-          if (i.data()['packagesDelivered'] != null)
-            packagesNo = i.data()['packagesDelivered'];
+          if (i.get('packagesDelivered') != null)
+            packagesNo = i.get('packagesDelivered');
 
-          int distance = (Geolocator.distanceBetween(lat, lon,
-                      widget.foodPacket.latitude, widget.foodPacket.longitude) /
+          int distance = (Geolocator.distanceBetween(
+                      lat,
+                      lon,
+                      widget.foodPacket.latitude!,
+                      widget.foodPacket.longitude!) /
                   1000)
               .ceil();
 
           NGO tempNGO = NGO(
               distance: distance,
-              name: i.data()['name'],
-              photoUrl: i.data()['image1'],
-              uid: i.data()['uid'],
+              name: i.get('name'),
+              photoUrl: i.get('image1'),
+              uid: i.get('uid'),
               isVerified: isVerified,
               packageNo: packagesNo);
 
@@ -72,7 +75,7 @@ class _NearbyNGOState extends State<NearbyNGO> {
 
         setState(() {
           nearbyNGOList.sort((a, b) {
-            return a.distance.compareTo(b.distance);
+            return a.distance!.compareTo(b.distance!);
           });
         });
       }
@@ -123,7 +126,7 @@ class _NearbyNGOState extends State<NearbyNGO> {
                           onTap: () {
                             Navigator.pop(context);
                             dialogBoxDonateDone(context);
-                            uploadDonationToDB(nearbyNGOList[index].uid);
+                            uploadDonationToDB(nearbyNGOList[index].uid ?? '');
                           },
                           child: Container(
                             height: h * 120,
@@ -153,7 +156,8 @@ class _NearbyNGOState extends State<NearbyNGO> {
                                       ? Image.asset('images/headNoImage.png')
                                       : CachedNetworkImage(
                                           imageUrl:
-                                              nearbyNGOList[index].photoUrl,
+                                              nearbyNGOList[index].photoUrl ??
+                                                  "",
                                           fit: BoxFit.fitHeight,
                                           imageBuilder:
                                               (context, imageProvider) =>
@@ -179,7 +183,7 @@ class _NearbyNGOState extends State<NearbyNGO> {
                                       Container(
                                         width: b * 200,
                                         child: Text(
-                                          nearbyNGOList[index].name,
+                                          nearbyNGOList[index].name ?? "",
                                           overflow: TextOverflow.ellipsis,
                                           style: txtS(
                                               textColor, 20, FontWeight.w600),
@@ -229,7 +233,7 @@ class _NearbyNGOState extends State<NearbyNGO> {
                                         ],
                                       ),
                                       sh(5),
-                                      nearbyNGOList[index].isVerified
+                                      nearbyNGOList[index].isVerified ?? false
                                           ? Row(
                                               children: [
                                                 Container(
@@ -323,17 +327,20 @@ class _NearbyNGOState extends State<NearbyNGO> {
 
     map.update('donatedTo', (value) => ngoUID);
 
-    FirebaseFirestore.instance.collection('donations').add(map).then((value) {
+    FirebaseFirestore.instance
+        .collection('donations')
+        .add(map.cast())
+        .then((value) {
       sendNotification(ngoUID);
     }).catchError((error) {
       print(error);
-      Toast.show("Error Encountered", context);
+      Toast.show("Error Encountered");
     });
   }
 
   sendNotification(String ngoUID) async {
     SharedPreferences pref = await SharedPreferences.getInstance();
-    String donorUID = pref.getString('currentUserUID');
+    String donorUID = pref.getString('currentUserUID') ?? "";
 
     FirebaseFunctions.instance
         .httpsCallable('sendDonation')

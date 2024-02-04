@@ -4,8 +4,8 @@ class ChatBubble extends CustomPainter {
   final Color color;
   final Alignment alignment;
   ChatBubble({
-    @required this.color,
-    this.alignment,
+    required this.color,
+    required this.alignment,
   });
 
   var _radius = 14.0;

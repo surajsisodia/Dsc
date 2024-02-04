@@ -15,7 +15,7 @@ class ProfileOrg extends StatefulWidget {
 
 class _ProfileOrgState extends State<ProfileOrg> {
   GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
-  SharedPreferences preferences;
+  late SharedPreferences preferences;
 
   TextEditingController addressController = TextEditingController();
   TextEditingController oldPwdController = TextEditingController();
@@ -45,27 +45,27 @@ class _ProfileOrgState extends State<ProfileOrg> {
 
   loadData() async {
     preferences = await SharedPreferences.getInstance();
-    uid = preferences.getString('currentUserUID');
+    uid = preferences.getString('currentUserUID') ?? "";
     setState(() {
-      userName = preferences.getString("currentUserName");
-      email = preferences.getString("currentUserEmail");
+      userName = preferences.getString("currentUserName") ?? "";
+      email = preferences.getString("currentUserEmail") ?? "";
 
       if (preferences.containsKey("currentUserPhone"))
-        userPhone = preferences.getString("currentUserPhone");
+        userPhone = preferences.getString("currentUserPhone") ?? "";
 
       if (preferences.containsKey('currentUserAddress'))
-        address = preferences.getString('currentUserAddress');
+        address = preferences.getString('currentUserAddress') ?? "";
       else
         address = "Not Provided";
 
       if (preferences.containsKey('currentUserAddress'))
-        address = preferences.getString('currentUserAddress');
+        address = preferences.getString('currentUserAddress') ?? "";
 
       if (preferences.containsKey('currentUserDesignation'))
-        designation = preferences.getString('currentUserDesignation');
+        designation = preferences.getString('currentUserDesignation') ?? "";
 
       if (preferences.containsKey('currentInChargeName'))
-        inChargeName = preferences.getString('currentInChargeName');
+        inChargeName = preferences.getString('currentInChargeName') ?? "";
     });
   }
 
@@ -319,10 +319,9 @@ class _ProfileOrgState extends State<ProfileOrg> {
                                               oldPwdController.text,
                                               newPwdController.text);
                                         } else {
-                                          Toast.show(
-                                              "Password Mismatch", context,
-                                              duration: Toast.LENGTH_LONG,
-                                              gravity: Toast.BOTTOM);
+                                          Toast.show("Password Mismatch",
+                                              duration: Toast.lengthLong,
+                                              gravity: Toast.bottom);
                                         }
                                       },
                                       child: Container(
@@ -566,7 +565,7 @@ class _ProfileOrgState extends State<ProfileOrg> {
     );
   }
 
-  Padding butt({String field}) {
+  Padding butt({required String field}) {
     return Padding(
       padding: EdgeInsets.only(
           left: SizeConfig.screenWidth / 414 * 180,
@@ -726,19 +725,18 @@ class _ProfileOrgState extends State<ProfileOrg> {
   void pwdChangeRequest(String pwd, String newPwd) {
     FirebaseAuth auth = FirebaseAuth.instance;
 
-    EmailAuthCredential credential =
+    AuthCredential credential =
         EmailAuthProvider.credential(email: email, password: pwd);
 
-    auth.currentUser.reauthenticateWithCredential(credential).catchError((e) {
+    auth.currentUser?.reauthenticateWithCredential(credential).catchError((e) {
       print("Error is: $e");
     }).then((value) {
-      auth.currentUser.updatePassword(newPwd).catchError((e) {
+      auth.currentUser?.updatePassword(newPwd).catchError((e) {
         print(e);
       }).timeout(Duration(seconds: 10), onTimeout: () {
-        Toast.show("Server Error", context, duration: Toast.LENGTH_LONG);
+        Toast.show("Server Error", duration: Toast.lengthLong);
       }).then((value) {
-        Toast.show("Password Changed Succesfully", context,
-            duration: Toast.LENGTH_LONG);
+        Toast.show("Password Changed Succesfully", duration: Toast.lengthLong);
         setState(() {
           isPass = !isPass;
         });
@@ -761,7 +759,7 @@ class _ProfileOrgState extends State<ProfileOrg> {
     });
 
     SharedPreferences pref = await SharedPreferences.getInstance();
-    String uid = pref.getString('currentUserUID');
+    String uid = pref.getString('currentUserUID') ?? "";
     FirebaseFirestore.instance
         .collection('users')
         .doc(uid)

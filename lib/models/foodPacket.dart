@@ -1,16 +1,16 @@
 class FoodPacket {
-  String amount;
-  String remark;
-  double latitude;
-  double longitude;
-  String dateTime;
-  String donor;
-  String donorUID;
-  String manualAddress;
-  String donatedTo;
-  bool isActive;
-  bool isAccept;
-  bool isDelivered;
+  String? amount;
+  String? remark;
+  double? latitude;
+  double? longitude;
+  String? dateTime;
+  String? donor;
+  String? donorUID;
+  String? manualAddress;
+  String? donatedTo;
+  bool? isActive;
+  bool? isAccept;
+  bool? isDelivered;
 
   FoodPacket(
       {this.amount,

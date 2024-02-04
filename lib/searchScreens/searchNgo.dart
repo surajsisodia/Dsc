@@ -35,15 +35,13 @@ class _SearchScreenState extends State<SearchScreen> {
 
       for (var i in completeList) {
         NGO tempNGO = NGO(
-            name: i.data()['name'],
-            photoUrl: i.data()['image1'],
-            uid: i.data()['uid']);
+            name: i.get('name'), photoUrl: i.get('image1'), uid: i.get('uid'));
 
         mainDataList.add(tempNGO);
       }
 
       mainDataList.sort((a, b) {
-        return a.name.compareTo(b.name);
+        return a.name!.compareTo(b.name!);
       });
 
       setState(() {
@@ -151,7 +149,8 @@ class _SearchScreenState extends State<SearchScreen> {
                                               'images/headNoImage.png')
                                           : CachedNetworkImage(
                                               imageUrl:
-                                                  newDataList[index].photoUrl,
+                                                  newDataList[index].photoUrl ??
+                                                      "",
                                               fit: BoxFit.fitHeight,
                                               imageBuilder:
                                                   (context, imageProvider) =>
@@ -178,7 +177,7 @@ class _SearchScreenState extends State<SearchScreen> {
                                           Container(
                                             width: b * 250,
                                             child: Text(
-                                              newDataList[index].name,
+                                              newDataList[index].name ?? "",
                                               overflow: TextOverflow.ellipsis,
                                               style: txtS(textColor, 20,
                                                   FontWeight.w600),
@@ -269,7 +268,7 @@ class _SearchScreenState extends State<SearchScreen> {
   onItemChanged(String value) {
     setState(() {
       newDataList = mainDataList
-          .where((ngo) => ngo.name.toLowerCase().contains(value.toLowerCase()))
+          .where((ngo) => ngo.name!.toLowerCase().contains(value.toLowerCase()))
           .toList();
     });
   }

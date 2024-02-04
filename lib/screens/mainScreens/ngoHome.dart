@@ -42,7 +42,7 @@ class _NgoHomeState extends State<NgoHome> {
   bool isVerified = false;
   int packagesNo = 0;
 
-  File image1File, image2File, image3File, image4File;
+  File? image1File, image2File, image3File, image4File;
   bool getImage1 = false;
   bool getImage2 = false;
   bool getImage3 = false;
@@ -83,7 +83,7 @@ class _NgoHomeState extends State<NgoHome> {
         .doc(message.data['uid'])
         .snapshots()
         .listen((snap) {
-      ngoName = snap.data()['name'];
+      ngoName = snap.data()?['name'];
     });
 
     FirebaseFirestore.instance
@@ -91,7 +91,7 @@ class _NgoHomeState extends State<NgoHome> {
         .doc(message.data['donorUid'])
         .snapshots()
         .listen((snap) {
-      String donorName = snap.data()['name'];
+      String donorName = snap.data()?['name'];
 
       FirebaseFirestore.instance
           .collection('donorChats')
@@ -103,7 +103,7 @@ class _NgoHomeState extends State<NgoHome> {
         'name': donorName,
         'isAccept': false
       }).then((value) {
-        uid = FirebaseAuth.instance.currentUser.uid;
+        uid = FirebaseAuth.instance.currentUser?.uid ?? "";
 
         Navigator.of(context).push(MaterialPageRoute(builder: (context) {
           return ChatScreen(
@@ -126,25 +126,25 @@ class _NgoHomeState extends State<NgoHome> {
     SharedPreferences preferences = await SharedPreferences.getInstance();
 
     setState(() {
-      ngoName = preferences.getString('currentUserName');
-      email = preferences.getString('currentUserEmail');
-      phone = preferences.getString('currentUserPhone');
+      ngoName = preferences.getString('currentUserName') ?? "";
+      email = preferences.getString('currentUserEmail') ?? "";
+      phone = preferences.getString('currentUserPhone') ?? "";
       if (preferences.containsKey('profileImageURL'))
-        headImageURL = preferences.getString('profileImageURL');
+        headImageURL = preferences.getString('profileImageURL') ?? "";
       if (preferences.containsKey('baseImageUrl'))
-        photo2 = preferences.getString('baseImageUrl');
+        photo2 = preferences.getString('baseImageUrl') ?? "";
       if (preferences.containsKey('currentUserAddress'))
-        address = preferences.getString('currentUserAddress');
+        address = preferences.getString('currentUserAddress') ?? "";
       if (preferences.containsKey('currentUserSummary'))
-        summary = preferences.getString('currentUserSummary');
+        summary = preferences.getString('currentUserSummary') ?? "";
 
       if (preferences.containsKey('isVerified'))
-        isVerified = preferences.getBool('isVerified');
+        isVerified = preferences.getBool('isVerified') ?? false;
       if (preferences.containsKey('currentUserRegDate'))
-        regDate = preferences.getString('currentUserRegDate');
+        regDate = preferences.getString('currentUserRegDate') ?? "";
 
       if (preferences.containsKey('packagesDelivered'))
-        packagesNo = preferences.getInt('packagesDelivered');
+        packagesNo = preferences.getInt('packagesDelivered') ?? 0;
     });
   }
 
@@ -535,8 +535,9 @@ class _NgoHomeState extends State<NgoHome> {
   }
 
   pickImage(int imageCode) async {
-    var picker = await ImagePicker().getImage(source: ImageSource.gallery);
+    var picker = await ImagePicker().pickImage(source: ImageSource.gallery);
 
+    if (picker == null) return;
     File selectedImage = File(picker.path);
     setState(() {
       if (imageCode == 1) {
@@ -551,8 +552,8 @@ class _NgoHomeState extends State<NgoHome> {
 
   uploadImageAndToDB(int code) async {
     SharedPreferences preferences = await SharedPreferences.getInstance();
-    String uid = preferences.getString('currentUserUID');
-    String fileCode;
+    String uid = preferences.getString('currentUserUID') ?? "";
+    String fileCode = '1';
     if (code == 1)
       fileCode = '1';
     else if (code == 2) fileCode = '2';
@@ -562,7 +563,7 @@ class _NgoHomeState extends State<NgoHome> {
         .child('ngoImages')
         .child(uid)
         .child(fileCode)
-        .putFile(code == 1 ? image1File : image2File)
+        .putFile(code == 1 ? image1File! : image2File!)
         .then((task) async {
       String imageURL = await getImageLink(fileCode, uid);
 

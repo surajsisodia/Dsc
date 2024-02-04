@@ -2,16 +2,15 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:gur/models/currentUser.dart';
 import 'package:gur/newAuthScreens/otp.dart';
-import 'login.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:toast/toast.dart';
+
 import '../Utils/SizeConfig.dart';
 import '../Utils/constants.dart';
-import 'package:toast/toast.dart';
-import 'package:flutter_svg/flutter_svg.dart';
+import 'login.dart';
 
 class SignUp extends StatefulWidget {
   final String userType;
@@ -31,7 +30,7 @@ class _SignUpState extends State<SignUp> {
   TextEditingController pwdController = TextEditingController();
   TextEditingController confirmPwdController = TextEditingController();
   TextEditingController phoneController = TextEditingController();
-  SharedPreferences preferences;
+  // SharedPreferences preferences;
   String uid = "";
   String userToken = "";
 
@@ -252,7 +251,7 @@ class _SignUpState extends State<SignUp> {
                         ),
                         child: TextFormField(
                           autovalidateMode: pwdValidator,
-                          validator: (String value) {
+                          validator: (String? value) {
                             if (value != pwdController.text)
                               return "Password did not match";
                             else
@@ -305,8 +304,8 @@ class _SignUpState extends State<SignUp> {
                         ),
                         child: TextFormField(
                           autovalidateMode: phoneValidator,
-                          validator: (String value) {
-                            if (value.length != 10)
+                          validator: (String? value) {
+                            if (value!.length != 10)
                               return "Invalid phone number";
                             else
                               return null;
@@ -482,12 +481,12 @@ class _SignUpState extends State<SignUp> {
     String phone = phoneController.text;
     phone = "+91" + phone;
 
-    preferences = await SharedPreferences.getInstance();
+    // SharedPreferences preferences = await SharedPreferences.getInstance();
 
     print(
         'User Name: $userName \nEmail: $email \nPassword: $pwd \nPhone: $phone');
 
-    bool newUser;
+    bool newUser = false;
     await FirebaseAuth.instance
         .fetchSignInMethodsForEmail(email)
         .then((authList) {
@@ -507,7 +506,7 @@ class _SignUpState extends State<SignUp> {
       type = uType;
 
     if (!newUser) {
-      Toast.show("Already Registered", context, duration: Toast.LENGTH_LONG);
+      Toast.show("Already Registered", duration: Toast.lengthLong);
       Navigator.of(context).pushAndRemoveUntil(
           MaterialPageRoute(builder: (context) {
         return Login();
@@ -545,7 +544,7 @@ class _SignUpState extends State<SignUp> {
     CurrentUser currentUser =
         CurrentUser(name: userName, email: email, phone: phone, uid: uid);
 
-    Map<String, dynamic> map = currentUser.toMap();
+    Map<String, dynamic> map = currentUser.toMap().cast();
 
     try {
       firestore.collection('users').doc(uid).set(map).whenComplete(() {

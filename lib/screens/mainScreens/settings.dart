@@ -403,11 +403,11 @@ class _SettingsState extends State<Settings> {
 
   deleteUser() async {
     SharedPreferences preferences = await SharedPreferences.getInstance();
-    String uid = FirebaseAuth.instance.currentUser.uid;
-    String email = FirebaseAuth.instance.currentUser.email;
+    String uid = FirebaseAuth.instance.currentUser?.uid ?? "";
+    String email = FirebaseAuth.instance.currentUser?.email ?? "";
     String pwd = pwdController.text;
 
-    FirebaseAuth.instance.currentUser.delete().then((value) {
+    FirebaseAuth.instance.currentUser?.delete().then((value) {
       FirebaseFirestore.instance
           .collection('users')
           .doc(uid)
@@ -427,10 +427,10 @@ class _SettingsState extends State<Settings> {
     }).catchError((error) {
       if (error.code == 'requires-recent-login') {
         FirebaseAuth.instance.currentUser
-            .reauthenticateWithCredential(
+            ?.reauthenticateWithCredential(
                 EmailAuthProvider.credential(email: email, password: pwd))
             .then((credential) {
-          FirebaseAuth.instance.currentUser.delete().catchError((er) {
+          FirebaseAuth.instance.currentUser?.delete().catchError((er) {
             print(er.message);
           });
           preferences.clear();

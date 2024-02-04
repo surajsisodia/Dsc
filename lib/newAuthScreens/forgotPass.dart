@@ -1,9 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
-import 'package:gur/newAuthScreens/forgotPasswordOtp.dart';
-import 'package:gur/newAuthScreens/login.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+
 import '../Utils/SizeConfig.dart';
 import '../Utils/constants.dart';
 
@@ -12,7 +9,6 @@ class ForgotPassword extends StatefulWidget {
 }
 
 class _ForgotPasswordState extends State<ForgotPassword> {
-  SharedPreferences preferences;
   String uid = "";
   String userToken = "";
   bool isVisible = false;

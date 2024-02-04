@@ -15,7 +15,7 @@ class Profile extends StatefulWidget {
 
 class _ProfileState extends State<Profile> {
   GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
-  SharedPreferences preferences;
+  late SharedPreferences preferences;
 
   TextEditingController addressController = TextEditingController();
   TextEditingController oldPwdController = TextEditingController();
@@ -40,22 +40,22 @@ class _ProfileState extends State<Profile> {
     preferences = await SharedPreferences.getInstance();
     setState(() {
       if (preferences.containsKey("currentUserName"))
-        userName = preferences.getString("currentUserName");
+        userName = preferences.getString("currentUserName") ?? "";
       else
         userName = "Not Provided";
 
       if (preferences.containsKey('currentUserEmail'))
-        email = preferences.getString("currentUserEmail");
+        email = preferences.getString("currentUserEmail") ?? "";
       else
-        email = preferences.getString('currentUserEmail');
+        email = preferences.getString('currentUserEmail') ?? "";
 
       if (preferences.containsKey("currentUserPhone"))
-        userPhone = preferences.getString("currentUserPhone");
+        userPhone = preferences.getString("currentUserPhone") ?? "";
       else
         userPhone = "Not Provided";
 
       if (preferences.containsKey('currentUserAddress')) {
-        address = preferences.getString('currentUserAddress');
+        address = preferences.getString('currentUserAddress') ?? "";
         addressController.text = address;
       } else
         address = "Not Provided";
@@ -253,10 +253,9 @@ class _ProfileState extends State<Profile> {
                                               oldPwdController.text,
                                               newPwdController.text);
                                         } else {
-                                          Toast.show(
-                                              "Password Mismatch", context,
-                                              duration: Toast.LENGTH_LONG,
-                                              gravity: Toast.BOTTOM);
+                                          Toast.show("Password Mismatch",
+                                              duration: Toast.lengthLong,
+                                              gravity: Toast.bottom);
                                         }
                                       },
                                       child: Container(
@@ -426,7 +425,7 @@ class _ProfileState extends State<Profile> {
         ));
   }
 
-  Padding butt(Function fn) {
+  Padding butt(Function? fn) {
     return Padding(
       padding: EdgeInsets.only(
           left: SizeConfig.screenWidth / 414 * 180,
@@ -590,19 +589,18 @@ class _ProfileState extends State<Profile> {
   pwdChangeRequest(String pwd, String newPwd) {
     FirebaseAuth auth = FirebaseAuth.instance;
 
-    EmailAuthCredential credential =
+    AuthCredential credential =
         EmailAuthProvider.credential(email: email, password: pwd);
 
-    auth.currentUser.reauthenticateWithCredential(credential).catchError((e) {
+    auth.currentUser?.reauthenticateWithCredential(credential).catchError((e) {
       print("Error is: $e");
     }).then((value) {
-      auth.currentUser.updatePassword(newPwd).catchError((e) {
+      auth.currentUser?.updatePassword(newPwd).catchError((e) {
         print(e);
       }).timeout(Duration(seconds: 5), onTimeout: () {
-        Toast.show("Server Error", context, duration: Toast.LENGTH_LONG);
+        Toast.show("Server Error", duration: Toast.lengthLong);
       }).then((value) {
-        Toast.show("Password Changed Succesfully", context,
-            duration: Toast.LENGTH_LONG);
+        Toast.show("Password Changed Succesfully", duration: Toast.lengthLong);
         setState(() {
           isPass = !isPass;
         });
@@ -620,7 +618,7 @@ class _ProfileState extends State<Profile> {
     });
 
     SharedPreferences pref = await SharedPreferences.getInstance();
-    String uid = pref.getString('currentUserUID');
+    String uid = pref.getString('currentUserUID') ?? "";
     FirebaseFirestore.instance
         .collection('users')
         .doc(uid)

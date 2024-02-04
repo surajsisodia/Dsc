@@ -44,13 +44,13 @@ class _HomePageState extends State<HomePage> {
 
   Future<void> loadMainImageList() async {
     SharedPreferences preferences = await SharedPreferences.getInstance();
-    uid = preferences.getString('currentUserUID');
+    uid = preferences.getString('currentUserUID') ?? "";
     FirebaseFirestore.instance
         .collection('users')
         .doc(uid)
         .snapshots()
         .listen((event) {
-      if (event.data()['points'] != null) userPoints = event.data()['points'];
+      if (event.data()?['points'] != null) userPoints = event.data()?['points'];
     });
     FirebaseFirestore.instance
         .collection('users')
@@ -61,9 +61,9 @@ class _HomePageState extends State<HomePage> {
       mainImageList.clear();
       setState(() {
         for (var i in documentSnapshot) {
-          if (i.data()['image1'] != null)
+          if (i.get('image1') != null)
             mainImageList
-                .add({'imageURL': i.data()['image1'], 'uid': i.data()['uid']});
+                .add({'imageURL': i.get('image1'), 'uid': i.get('uid')});
         }
       });
     });
@@ -74,8 +74,8 @@ class _HomePageState extends State<HomePage> {
         .snapshots()
         .listen((event) {
       setState(() {
-        userSumAmtDonat = event.data()['amount'];
-        userSumTimeDonated = event.data()['times'];
+        userSumAmtDonat = event.data()?['amount'];
+        userSumTimeDonated = event.data()?['times'];
       });
     });
 
@@ -85,8 +85,8 @@ class _HomePageState extends State<HomePage> {
         .snapshots()
         .listen((event) {
       setState(() {
-        globalSumAmtDonated = event.data()['amount'];
-        globalSumTimeDonated = event.data()['times'];
+        globalSumAmtDonated = event.data()?['amount'];
+        globalSumTimeDonated = event.data()?['times'];
       });
     });
 

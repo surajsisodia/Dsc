@@ -1,10 +1,10 @@
 class NGO {
-  String name;
-  String uid;
-  int distance;
-  String photoUrl;
-  bool isVerified;
-  int packageNo;
+  String? name;
+  String? uid;
+  int? distance;
+  String? photoUrl;
+  bool? isVerified;
+  int? packageNo;
 
   NGO(
       {this.name,

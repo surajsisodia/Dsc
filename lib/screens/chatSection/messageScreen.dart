@@ -8,14 +8,14 @@ import '../../Utils/constants.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
 class MessageScreen extends StatefulWidget {
-  final String uid;
+  final String? uid;
   MessageScreen({this.uid});
   @override
   _MessageScreenState createState() => _MessageScreenState();
 }
 
 class _MessageScreenState extends State<MessageScreen> {
-  List donorList = [];
+  List<String> donorList = [];
 
   loadMainList() async {
     FirebaseFirestore.instance
@@ -26,7 +26,7 @@ class _MessageScreenState extends State<MessageScreen> {
 
       setState(() {
         for (var i in documentSnapshot) {
-          donorList.add(i.data()['name']);
+          donorList.add(i.get('name').toString());
         }
       });
     });
@@ -88,12 +88,12 @@ class _MessageScreenState extends State<MessageScreen> {
               stream: FirebaseFirestore.instance
                   .collection('donorChats')
                   .doc('lists')
-                  .collection(widget.uid)
+                  .collection(widget.uid ?? "")
                   .snapshots(),
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting)
                   return SpinKitCircle(color: mc);
-                else if (snapshot.data.docs.length == 0)
+                else if (snapshot.data!.docs.length == 0)
                   return Column(children: [
                     Text(
                       'Oops ! No Chat so far',
@@ -105,7 +105,7 @@ class _MessageScreenState extends State<MessageScreen> {
                     child: ListView.builder(
                       shrinkWrap: true,
                       physics: BouncingScrollPhysics(),
-                      itemCount: snapshot.data.docs.length,
+                      itemCount: snapshot.data!.docs.length,
                       itemBuilder: (context, index) => Column(
                         children: <Widget>[
                           InkWell(
@@ -113,10 +113,10 @@ class _MessageScreenState extends State<MessageScreen> {
                               Navigator.of(context).push(
                                 MaterialPageRoute(builder: (context) {
                                   return ChatScreen(
-                                    receiverUid: snapshot.data.docs[index]
+                                    receiverUid: snapshot.data!.docs[index]
                                         ['uid'],
                                     senderUID: widget.uid,
-                                    receiverName: snapshot.data.docs[index]
+                                    receiverName: snapshot.data!.docs[index]
                                         ['name'],
                                   );
                                 }),
@@ -158,7 +158,7 @@ class _MessageScreenState extends State<MessageScreen> {
                                           CrossAxisAlignment.start,
                                       children: [
                                         Text(
-                                          snapshot.data.docs[index]['name'],
+                                          snapshot.data!.docs[index]['name'],
                                           overflow: TextOverflow.ellipsis,
                                           style: txtS(
                                               textColor, 16, FontWeight.w600),

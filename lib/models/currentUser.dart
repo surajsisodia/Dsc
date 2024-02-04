@@ -1,14 +1,14 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class CurrentUser {
-  String name;
-  String email;
-  String phone;
-  String uid;
-  String token;
-  String address;
-  String userType;
-  FieldValue regDate;
+  String? name;
+  String? email;
+  String? phone;
+  String? uid;
+  String? token;
+  String? address;
+  String? userType;
+  FieldValue? regDate;
 
   CurrentUser(
       {this.name,

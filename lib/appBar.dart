@@ -10,8 +10,8 @@ class Bar extends StatelessWidget {
   final String title;
 
   Bar({
-    @required this.scaffoldKey,
-    @required this.title,
+    required this.scaffoldKey,
+    required this.title,
   });
   @override
   Widget build(BuildContext context) {
@@ -37,7 +37,7 @@ class Bar extends StatelessWidget {
         children: [
           InkWell(
             onTap: () {
-              scaffoldKey.currentState.openDrawer();
+              scaffoldKey.currentState!.openDrawer();
             },
             child: Container(
               height: h * 30,
@@ -59,7 +59,7 @@ class Bar extends StatelessWidget {
               Navigator.of(context).push(
                 MaterialPageRoute(builder: (context) {
                   return MessageScreen(
-                      uid: FirebaseAuth.instance.currentUser.uid);
+                      uid: FirebaseAuth.instance.currentUser?.uid ?? "");
                 }),
               );
             },

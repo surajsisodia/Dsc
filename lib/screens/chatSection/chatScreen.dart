@@ -1,28 +1,28 @@
+import 'dart:async';
 import 'dart:io';
-import 'package:flutter/rendering.dart';
+
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_animated_dialog/flutter_animated_dialog.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:gur/Utils/SizeConfig.dart';
-import 'package:flutter/material.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'dart:async';
 import 'package:gur/Utils/messageUI.dart';
 import 'package:gur/homePages/homeMainInd.dart';
 import 'package:gur/homePages/homeMainNGO.dart';
 import 'package:gur/homePages/homeMainOrg.dart';
 import 'package:gur/models/msg.dart';
 import 'package:location/location.dart' as loc;
+import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
+
 import '../../Utils/constants.dart';
-import '../../Utils/SizeConfig.dart';
-import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 
 class ChatScreen extends StatefulWidget {
-  final String receiverUid;
-  final String senderUID;
-  final String receiverName;
+  final String? receiverUid;
+  final String? senderUID;
+  final String? receiverName;
 
   ChatScreen({this.receiverUid, this.senderUID, this.receiverName});
 
@@ -30,23 +30,23 @@ class ChatScreen extends StatefulWidget {
 }
 
 class _ChatScreenState extends State<ChatScreen> {
-  ScrollController scrollController;
+  late ScrollController scrollController;
 
   ScrollController _scrollController = new ScrollController();
   var _formKey = GlobalKey<FormState>();
   var map = Map<String, dynamic>();
-  CollectionReference _collectionReference;
-  DocumentSnapshot documentSnapshot;
+  late CollectionReference _collectionReference;
+  late DocumentSnapshot documentSnapshot;
   var listItem;
-  String receiverPhotoUrl, senderPhotoUrl, receiverName, senderName;
-  StreamSubscription<DocumentSnapshot> subscription;
-  File imageFile;
-  TextEditingController _messageController;
+  late String receiverPhotoUrl, senderPhotoUrl, receiverName, senderName;
+  StreamSubscription<DocumentSnapshot>? subscription;
+  late File imageFile;
+  late TextEditingController _messageController;
   TextEditingController nameController = TextEditingController();
   TextEditingController phoneController = TextEditingController();
   bool acceptOrNot = false;
   bool isRejected = false;
-  int userType;
+  late int userType;
   String donationUIDOnlyForNGOSide = "";
   String userTypeString = '';
   bool accepted = false;
@@ -82,24 +82,24 @@ class _ChatScreenState extends State<ChatScreen> {
     FirebaseFirestore.instance
         .collection('donorChats')
         .doc('lists')
-        .collection(widget.receiverUid)
+        .collection(widget.receiverUid ?? "")
         .doc(widget.senderUID)
         .snapshots()
         .listen((event) {
       setState(() {
-        if (event.data()['isAccept'] != null)
-          acceptOrNot = event.data()['isAccept'];
-        if (event.data()['isDelivered'] != null)
-          isDelivered = event.data()['isDelivered'];
-        if (event.data()['isRejected'] != null)
-          isRejected = event.data()['isRejected'];
+        if (event.data()?['isAccept'] != null)
+          acceptOrNot = event.data()?['isAccept'];
+        if (event.data()?['isDelivered'] != null)
+          isDelivered = event.data()?['isDelivered'];
+        if (event.data()?['isRejected'] != null)
+          isRejected = event.data()?['isRejected'];
       });
     });
   }
 
   loadType() async {
     SharedPreferences pref = await SharedPreferences.getInstance();
-    String tempType = pref.getString('currentUserType');
+    String tempType = pref.getString('currentUserType') ?? "";
     userTypeString = tempType;
 
     setState(() {
@@ -117,13 +117,13 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 
   void addMessageToDb(Message message) async {
-    map = message.toMap();
+    map = message.toMap().cast();
     _collectionReference = FirebaseFirestore.instance
         .collection('donorChats')
         .doc('messages')
         .collection("messages")
         .doc(widget.senderUID)
-        .collection(widget.receiverUid);
+        .collection(widget.receiverUid ?? "");
 
     _collectionReference.add(map).whenComplete(() {
       print("Messages added to db");
@@ -134,7 +134,7 @@ class _ChatScreenState extends State<ChatScreen> {
         .doc('messages')
         .collection("messages")
         .doc(widget.receiverUid)
-        .collection(widget.senderUID);
+        .collection(widget.senderUID ?? "");
 
     _collectionReference.add(map).whenComplete(() {
       print("Messages added to db");
@@ -189,8 +189,8 @@ class _ChatScreenState extends State<ChatScreen> {
                       Text(
                         widget.receiverName == null
                             ? 'Messages'
-                            : widget
-                                .receiverName, //name of user to be displayed
+                            : widget.receiverName ??
+                                "", //name of user to be displayed
                         style: txtS(mc, 20, FontWeight.w600),
                       ),
                       Spacer(),
@@ -270,8 +270,8 @@ class _ChatScreenState extends State<ChatScreen> {
           Flexible(
             child: Container(
               child: TextFormField(
-                validator: (String input) {
-                  if (input.isEmpty) {
+                validator: (String? input) {
+                  if (input!.isEmpty) {
                     return "Please enter message";
                   }
                   return null;
@@ -326,7 +326,7 @@ class _ChatScreenState extends State<ChatScreen> {
                     ),
                     onTap: () {
                       tolast();
-                      if (_formKey.currentState.validate()) {
+                      if (_formKey.currentState!.validate()) {
                         //sendNotification(_messageController.text);
                         //initLocalDB(_messageController.text);
                         sendMessage();
@@ -662,7 +662,7 @@ class _ChatScreenState extends State<ChatScreen> {
     print(
         "receiverUid: ${widget.receiverUid} , senderUid : $widget.senderUID , message: $text");
     print(
-        "timestamp: ${DateTime.now().millisecond}, type: ${text != null ? 'text' : 'image'}");
+        "timestamp: ${DateTime.now().millisecond}, type: ${text != "" ? 'text' : 'image'}");
     addMessageToDb(_message);
   }
 
@@ -688,7 +688,7 @@ class _ChatScreenState extends State<ChatScreen> {
             .doc('messages')
             .collection('messages')
             .doc(widget.senderUID)
-            .collection(widget.receiverUid)
+            .collection(widget.receiverUid ?? "")
             .orderBy('timestamp')
             .snapshots(),
         builder: (context, snapshot) {
@@ -697,8 +697,8 @@ class _ChatScreenState extends State<ChatScreen> {
               child: CircularProgressIndicator(),
             );
           } else {
-            int rev = snapshot.data.docs.length - 1;
-            listItem = snapshot.data.docs;
+            int rev = snapshot.data!.docs.length - 1;
+            listItem = snapshot.data!.docs;
             return ListView.builder(
               physics: BouncingScrollPhysics(),
               controller: _scrollController,
@@ -706,8 +706,8 @@ class _ChatScreenState extends State<ChatScreen> {
                   EdgeInsets.symmetric(horizontal: b * 10, vertical: h * 10),
               reverse: true,
               itemBuilder: (context, index) =>
-                  chatMessageItem(snapshot.data.docs[rev - index]),
-              itemCount: snapshot.data.docs.length,
+                  chatMessageItem(snapshot.data!.docs[rev - index]),
+              itemCount: snapshot.data!.docs.length,
             );
           }
         },
@@ -926,7 +926,7 @@ class _ChatScreenState extends State<ChatScreen> {
     );
   }
 
-  String giveTime(Timestamp timestamp) {
+  String giveTime(Timestamp? timestamp) {
     String time = "";
     if (timestamp != null) {
       DateTime d = timestamp.toDate();
@@ -1095,13 +1095,13 @@ class _ChatScreenState extends State<ChatScreen> {
       FirebaseFirestore.instance
           .collection('donorChats')
           .doc('lists')
-          .collection(widget.senderUID)
+          .collection(widget.senderUID ?? "")
           .doc(widget.receiverUid)
           .update({'isAccept': true}).then((value) {
         FirebaseFirestore.instance
             .collection('donorChats')
             .doc('lists')
-            .collection(widget.receiverUid)
+            .collection(widget.receiverUid ?? '')
             .doc(widget.senderUID)
             .update({'isAccept': true}).then((value) {
           setState(() {

@@ -20,16 +20,16 @@ class _DialogBoxRemarkState extends State<DialogBoxRemark> {
   final ScrollController _scrollController = ScrollController();
   TextEditingController remarkController = TextEditingController();
   TextEditingController locationController = TextEditingController();
-  double latitude;
-  double longitude;
+  double? latitude;
+  double? longitude;
   bool isLocationGot = false;
 
   bool rad = true;
 
   loc.Location location = loc.Location();
-  bool serviceEnabled;
-  loc.PermissionStatus permissionStatus;
-  loc.LocationData locationData;
+  bool serviceEnabled = false;
+  loc.PermissionStatus? permissionStatus;
+  loc.LocationData? locationData;
 
   void toNavigate(double qwer) {
     _scrollController.animateTo(SizeConfig.screenHeight * qwer / 896,
@@ -211,10 +211,10 @@ class _DialogBoxRemarkState extends State<DialogBoxRemark> {
 
     FoodPacket foodPacket = FoodPacket(
         amount: widget.foodAmount,
-        donor: preferences.getString('currentUserName'),
-        donorUID: preferences.getString('currentUserUID'),
-        latitude: latitude,
-        longitude: longitude,
+        donor: preferences.getString('currentUserName') ?? "",
+        donorUID: preferences.getString('currentUserUID') ?? "",
+        latitude: latitude ?? 0.0,
+        longitude: longitude ?? 0.0,
         remark: remarkController.text.trim(),
         dateTime: Timestamp.now().millisecondsSinceEpoch.toString(),
         isActive: true,
@@ -245,7 +245,7 @@ class _DialogBoxRemarkState extends State<DialogBoxRemark> {
       if (permissionStatus == loc.PermissionStatus.denied ||
           permissionStatus == loc.PermissionStatus.deniedForever) {
         permissionsOK = false;
-        Toast.show("Permission Required", context);
+        Toast.show("Permission Required");
       } else
         permissionsOK = true;
     } else if (permissionStatus == loc.PermissionStatus.deniedForever)

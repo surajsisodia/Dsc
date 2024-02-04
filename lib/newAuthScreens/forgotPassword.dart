@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:gur/main.dart';
 import '../Utils/SizeConfig.dart';
 import '../Utils/constants.dart';
 import 'package:flutter/cupertino.dart';
@@ -195,7 +196,7 @@ class ForgotPassword extends StatelessWidget {
     await FirebaseAuth.instance
         .sendPasswordResetEmail(email: email)
         .then((value) {
-      _scaffoldkey.currentState.showSnackBar(SnackBar(
+      ScaffoldMessenger.of(navigatorKey.currentContext!).showSnackBar(SnackBar(
         content: Text("Password reset link is sent to your email"),
         backgroundColor: Colors.yellow,
       ));

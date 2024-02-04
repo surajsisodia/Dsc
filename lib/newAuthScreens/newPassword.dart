@@ -1,21 +1,14 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
-import 'package:gur/newAuthScreens/forgotPass.dart';
-import 'package:gur/models/currentUser.dart';
-import 'package:gur/newAuthScreens/signup.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+
 import '../Utils/SizeConfig.dart';
 import '../Utils/constants.dart';
-import 'package:toast/toast.dart';
 
 class ChangePassword extends StatefulWidget {
   _ChangePasswordState createState() => _ChangePasswordState();
 }
 
 class _ChangePasswordState extends State<ChangePassword> {
-  SharedPreferences preferences;
+  // SharedPreferences preferences;
   String uid = "";
   String userToken = "";
   bool isVisible = false;

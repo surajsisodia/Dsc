@@ -1,12 +1,12 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class ContactCard {
-  String senderUID;
-  String recieverUID;
-  String phoneNo;
-  String name;
-  String type;
-  FieldValue timestamp;
+  String? senderUID;
+  String? recieverUID;
+  String? phoneNo;
+  String? name;
+  String? type;
+  FieldValue? timestamp;
 
   ContactCard(
       this.senderUID, this.recieverUID, this.phoneNo, this.name, this.type);
